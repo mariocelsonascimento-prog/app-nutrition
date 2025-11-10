@@ -1,0 +1,53 @@
+FOODS_DB = {
+    # PROTEÍNAS
+    "Peito de frango grelhado":      {"kcal": 165, "protein": 31.0, "carb": 0.0,  "fat": 3.5},
+    "Peito de frango cozido":        {"kcal": 150, "protein": 29.0, "carb": 0.0,  "fat": 2.6},
+    "Coxa/sobrecoxa assada s/ pele": {"kcal": 210, "protein": 27.0, "carb": 0.0,  "fat": 11.0},
+    "Carne moída magra (patinho)":   {"kcal": 240, "protein": 26.0, "carb": 0.0,  "fat": 15.0},
+    "Ovo inteiro":                   {"kcal": 143, "protein": 12.5, "carb": 1.0,  "fat": 9.5},
+    "Clara de ovo":                  {"kcal": 52,  "protein": 11.0, "carb": 0.7,  "fat": 0.2},
+    "Whey protein (pó)":             {"kcal": 400, "protein": 80.0, "carb": 8.0,  "fat": 6.0},
+    "Queijo cottage":                {"kcal": 98,  "protein": 11.0, "carb": 3.4,  "fat": 4.3},
+    "Peito de peru (fatiado)":       {"kcal": 112, "protein": 21.0, "carb": 1.0,  "fat": 2.0},
+
+    # CARBOIDRATOS
+    "Arroz branco cozido":           {"kcal": 130, "protein": 2.5,  "carb": 28.0, "fat": 0.3},
+    "Batata doce cozida":            {"kcal": 76,  "protein": 1.4,  "carb": 18.0, "fat": 0.1},
+    "Batata inglesa cozida":         {"kcal": 87,  "protein": 1.9,  "carb": 20.0, "fat": 0.1},
+    "Mandioca cozida":               {"kcal": 125, "protein": 0.6,  "carb": 30.0, "fat": 0.3},
+    "Macarrão cozido":               {"kcal": 158, "protein": 5.8,  "carb": 30.0, "fat": 0.9},
+    "Aveia em flocos":               {"kcal": 389, "protein": 17.0, "carb": 66.0, "fat": 7.0},
+    "Pão integral":                  {"kcal": 260, "protein": 10.0, "carb": 49.0, "fat": 3.5},
+    "Granola":                       {"kcal": 420, "protein": 10.0, "carb": 64.0, "fat": 12.0},
+    "Banana prata":                  {"kcal": 89,  "protein": 1.1,  "carb": 23.0, "fat": 0.3},
+    "Maçã":                          {"kcal": 52,  "protein": 0.3,  "carb": 14.0, "fat": 0.2},
+    "Melão":                         {"kcal": 34,  "protein": 0.8,  "carb": 8.0,  "fat": 0.2},
+    "Mamão":                         {"kcal": 43,  "protein": 0.5,  "carb": 11.0, "fat": 0.3},
+    "Abacaxi":                       {"kcal": 50,  "protein": 0.5,  "carb": 13.0, "fat": 0.1},
+    "Laranja":                       {"kcal": 47,  "protein": 0.9,  "carb": 12.0, "fat": 0.1},
+
+    # VEGETAIS
+    "Alface":                        {"kcal": 15,  "protein": 1.3,  "carb": 2.9,  "fat": 0.2},
+    "Agrião":                        {"kcal": 17,  "protein": 2.3,  "carb": 2.3,  "fat": 0.1},
+    "Rúcula":                        {"kcal": 25,  "protein": 2.6,  "carb": 3.7,  "fat": 0.7},
+    "Espinafre":                     {"kcal": 23,  "protein": 2.9,  "carb": 3.6,  "fat": 0.4},
+    "Cenoura":                       {"kcal": 41,  "protein": 0.9,  "carb": 10.0, "fat": 0.2},
+    "Tomate":                        {"kcal": 21,  "protein": 0.9,  "carb": 4.0,  "fat": 0.2},
+    "Brócolis cozido":               {"kcal": 55,  "protein": 3.7,  "carb": 11.0, "fat": 0.6},
+    "Abóbora cozida":                {"kcal": 48,  "protein": 1.0,  "carb": 12.0, "fat": 0.1},
+    "Abobrinha cozida":              {"kcal": 24,  "protein": 1.1,  "carb": 4.4,  "fat": 0.3},
+    "Chuchu cozido":                 {"kcal": 31,  "protein": 0.7,  "carb": 7.0,  "fat": 0.1},
+    "Quiabo cozido":                 {"kcal": 35,  "protein": 1.9,  "carb": 7.0,  "fat": 0.2},
+    "Jiló cozido":                   {"kcal": 37,  "protein": 1.4,  "carb": 8.0,  "fat": 0.2},
+    "Beterraba cozida":              {"kcal": 49,  "protein": 1.6,  "carb": 11.0, "fat": 0.1},
+    "Couve-flor cozida":             {"kcal": 30,  "protein": 2.3,  "carb": 5.0,  "fat": 0.3},
+    "Cebola":                        {"kcal": 40,  "protein": 1.1,  "carb": 9.3,  "fat": 0.1},
+    "Pimentão":                      {"kcal": 26,  "protein": 0.9,  "carb": 6.0,  "fat": 0.2},
+
+    # GORDURAS / COMPLEMENTOS
+    "Azeite de oliva":               {"kcal": 884,"protein": 0.0,  "carb": 0.0,  "fat": 100.0},
+    "Pasta de amendoim":             {"kcal": 589,"protein": 25.0, "carb": 20.0, "fat": 50.0},
+    "Abacate":                       {"kcal": 160,"protein": 2.0,  "carb": 9.0,  "fat": 15.0},
+    "Chia":                          {"kcal": 486,"protein": 17.0, "carb": 42.0, "fat": 31.0},
+    "Leite desnatado":               {"kcal": 42, "protein": 3.4,  "carb": 5.0,  "fat": 0.2},
+}
