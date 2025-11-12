@@ -1,46 +1,33 @@
 import streamlit as st
 from foods_db import FOODS_DB
+from data_manager import load_plan, save_log, load_log, today_str
 
 st.title("📅 Acompanhamento diário")
 st.write(
-    "Registre tudo o que você consumiu ao longo do dia. "
-    "Cada item lançado aparece em uma linha, com os macros correspondentes. "
-    "Se você já montou sua dieta na página **Minha dieta**, aqui também verá "
-    "quanto ainda falta (ou quanto passou) em relação ao plano."
+    "Registre o que você consumiu ao longo do dia. Cada item é uma linha. "
+    "Os dados ficam salvos por data em arquivos locais."
 )
 
 # =========================
-# 1) Recuperar totais da dieta (Minha dieta)
+# Meta (carregada da dieta salva)
 # =========================
+meals_plan = load_plan()
 
-def calcular_totais_dieta():
-    if "meals" not in st.session_state or not st.session_state["meals"]:
-        return 0.0, 0.0, 0.0, 0.0
-
-    total_kcal = 0.0
-    total_prot = 0.0
-    total_carb = 0.0
-    total_fat = 0.0
-
-    for items in st.session_state["meals"].values():
+def calcular_totais_dieta(meals_dict):
+    total_kcal = total_prot = total_carb = total_fat = 0.0
+    for items in meals_dict.values():
         for i in items:
             total_kcal += i["kcal"]
             total_prot += i["protein"]
             total_carb += i["carb"]
-            total_fat += i["fat"]
-
+            total_fat  += i["fat"]
     return total_kcal, total_prot, total_carb, total_fat
 
+target_kcal, target_prot, target_carb, target_fat = calcular_totais_dieta(meals_plan)
 
-target_kcal, target_prot, target_carb, target_fat = calcular_totais_dieta()
-
-st.markdown("### 🎯 Meta diária baseada na página **Minha dieta**")
-
-if target_kcal == 0 and target_prot == 0 and target_carb == 0 and target_fat == 0:
-    st.info(
-        "Nenhuma dieta base encontrada. Monte sua dieta na página **Minha dieta** "
-        "para definir uma meta diária de macros."
-    )
+st.markdown("### 🎯 Meta diária (vinda da página **Minha dieta**)")
+if target_kcal == target_prot == target_carb == target_fat == 0:
+    st.info("Nenhuma dieta base encontrada. Monte e salve na página **Minha dieta**.")
 else:
     st.markdown(
         f"- **Calorias alvo:** {target_kcal:.0f} kcal\n"
@@ -52,33 +39,26 @@ else:
 st.markdown("---")
 
 # =========================
-# 2) Log diário de consumo
+# Dia selecionado
 # =========================
+st.subheader("🗓️ Selecione o dia")
+default_day = today_str()
+day = st.text_input("Data (YYYY-MM-DD)", value=default_day, key="log_day")
 
-if "daily_log" not in st.session_state:
-    # Lista de registros do dia:
-    # { food, grams, kcal, protein, carb, fat }
-    st.session_state["daily_log"] = []
+# =========================
+# Estado do log do dia
+# =========================
+if "daily_log" not in st.session_state or st.session_state.get("loaded_day") != day:
+    st.session_state["daily_log"] = load_log(day)
+    st.session_state["loaded_day"] = day
 
-st.subheader("✍️ Registrar consumo do dia")
-
-col1, col2, col3 = st.columns([2, 1.2, 1])
-with col1:
-    food = st.selectbox(
-        "Alimento consumido",
-        sorted(FOODS_DB.keys()),
-        key="log_food"
-    )
-with col2:
-    grams = st.number_input(
-        "Quantidade (g)",
-        min_value=1,
-        max_value=2000,
-        value=100,
-        step=10,
-        key="log_grams"
-    )
-with col3:
+st.subheader("✍️ Registrar consumo")
+c1, c2, c3 = st.columns([2, 1.2, 1])
+with c1:
+    food = st.selectbox("Alimento consumido", sorted(FOODS_DB.keys()), key="log_food")
+with c2:
+    grams = st.number_input("Quantidade (g)", min_value=1, max_value=2000, value=100, step=10, key="log_grams")
+with c3:
     if st.button("Adicionar consumo", use_container_width=True):
         data = FOODS_DB[food]
         factor = grams / 100.0
@@ -91,19 +71,18 @@ with col3:
             "fat": round(data["fat"] * factor, 1),
         }
         st.session_state["daily_log"].append(entry)
+        save_log(day, st.session_state["daily_log"])  # salva a cada inserção
         st.success(f"Adicionado: {grams} g de {food}")
 
 st.markdown("---")
 
 # =========================
-# 3) Exibir log em linhas + totais consumidos
+# Tabela de lançamentos + totais
 # =========================
-
 if not st.session_state["daily_log"]:
-    st.info("Nenhum alimento registrado ainda para hoje. Adicione acima.")
+    st.info("Nenhum alimento registrado ainda para este dia. Adicione acima.")
 else:
-    st.subheader("📋 Consumos registrados (linha a linha)")
-    # Cada item é uma linha separada (sem agrupar por refeição)
+    st.subheader(f"📋 Consumos de {day}")
     st.table(st.session_state["daily_log"])
 
     total_kcal_cons = sum(i["kcal"] for i in st.session_state["daily_log"])
@@ -111,7 +90,7 @@ else:
     total_carb_cons = sum(i["carb"] for i in st.session_state["daily_log"])
     total_fat_cons  = sum(i["fat"]  for i in st.session_state["daily_log"])
 
-    st.subheader("📊 Totais consumidos no dia")
+    st.subheader("📊 Totais consumidos")
     st.markdown(
         f"- **Calorias consumidas:** {total_kcal_cons:.0f} kcal\n"
         f"- **Proteínas consumidas:** {total_prot_cons:.1f} g\n"
@@ -119,26 +98,18 @@ else:
         f"- **Gorduras consumidas:** {total_fat_cons:.1f} g"
     )
 
-    # =========================
-    # 4) Diferença em relação à meta (deduzir da dieta)
-    # =========================
-    if target_kcal > 0 or target_prot > 0 or target_carb > 0 or target_fat > 0:
-        st.subheader("🧮 Diferença em relação à dieta planejada")
-
-        diff_kcal = target_kcal - total_kcal_cons
-        diff_prot = target_prot - total_prot_cons
-        diff_carb = target_carb - total_carb_cons
-        diff_fat  = target_fat - total_fat_cons
-
+    if target_kcal or target_prot or target_carb or target_fat:
+        st.subheader("🧮 Diferença vs meta")
         st.markdown(
-            f"- **Calorias restantes:** {diff_kcal:.0f} kcal\n"
-            f"- **Proteína restante:** {diff_prot:.1f} g\n"
-            f"- **Carboidratos restantes:** {diff_carb:.1f} g\n"
-            f"- **Gorduras restantes:** {diff_fat:.1f} g"
+            f"- **Calorias restantes:** {target_kcal - total_kcal_cons:.0f} kcal\n"
+            f"- **Proteína restante:** {target_prot - total_prot_cons:.1f} g\n"
+            f"- **Carboidratos restantes:** {target_carb - total_carb_cons:.1f} g\n"
+            f"- **Gorduras restantes:** {target_fat - total_fat_cons:.1f} g"
         )
-        st.caption("Valores negativos = você ultrapassou a meta daquele macro. 😉")
+        st.caption("Valores negativos = meta ultrapassada.")
 
-    # Botão para limpar o dia
+    # Limpar
     if st.button("🗑️ Limpar registros do dia"):
         st.session_state["daily_log"] = []
-        st.success("Registros do dia apagados. Comece novamente.")
+        save_log(day, st.session_state["daily_log"])
+        st.success("Registros do dia apagados.")

@@ -1,27 +1,25 @@
 import streamlit as st
 from foods_db import FOODS_DB
+from data_manager import load_plan, save_plan
 
 st.set_page_config(page_title="Minha dieta - Nutri App", page_icon="💪")
 
 st.title("🍽️ Minha dieta")
 st.write(
-    "Monte sua dieta diária por refeição usando a base de alimentos personalizada. "
-    "Adicione refeições, selecione alimentos e quantidades, e veja os macros por refeição e no total."
+    "Monte sua dieta diária por refeição. Os dados ficam salvos automaticamente no arquivo local."
 )
 
 # =========================
 # Inicialização do estado
 # =========================
 if "meals" not in st.session_state:
-    # meals = { nome_refeicao: [ {food, grams, kcal, protein, carb, fat}, ... ] }
-    st.session_state["meals"] = {}
+    st.session_state["meals"] = load_plan()  # tenta carregar do disco
 
 if "meal_input" not in st.session_state:
     st.session_state["meal_input"] = ""
 
 if "meal_message" not in st.session_state:
     st.session_state["meal_message"] = ""
-
 
 # =========================
 # Função callback para adicionar refeição
@@ -34,10 +32,9 @@ def add_meal_callback():
         st.session_state["meal_message"] = "⚠️ Essa refeição já existe."
     else:
         st.session_state["meals"][name] = []
+        save_plan(st.session_state["meals"])          # salva
         st.session_state["meal_message"] = f"✅ Refeição **{name}** adicionada."
-        # limpa o campo de texto
-        st.session_state["meal_input"] = ""
-
+        st.session_state["meal_input"] = ""           # limpa campo
 
 # =========================
 # Adicionar nova refeição
@@ -72,17 +69,16 @@ else:
     total_carb_day = 0.0
     total_fat_day = 0.0
 
-    # Vamos guardar refeições para remover, se o usuário quiser
     meals_to_delete = []
 
     for meal_name, items in st.session_state["meals"].items():
         with st.expander(f"🍽️ {meal_name}", expanded=True):
 
-            # Botão para remover refeição
+            # Remover refeição
             if st.button(f"Remover refeição '{meal_name}'", key=f"del_{meal_name}"):
                 meals_to_delete.append(meal_name)
             else:
-                # Seleção de alimento e quantidade para esta refeição
+                # Adicionar alimento
                 c1, c2, c3 = st.columns([2, 1.2, 1])
                 with c1:
                     food = st.selectbox(
@@ -112,8 +108,9 @@ else:
                             "fat": round(data["fat"] * factor, 1),
                         }
                         st.session_state["meals"][meal_name].append(item)
+                        save_plan(st.session_state["meals"])      # salva após inserir
 
-                # Mostrar tabela da refeição
+                # Tabela e resumo
                 if items:
                     st.write("**Alimentos desta refeição:**")
                     st.table(items)
@@ -137,16 +134,16 @@ else:
                 else:
                     st.caption("Nenhum alimento adicionado ainda para esta refeição.")
 
-    # Remover refeições marcadas
-    for m in meals_to_delete:
-        del st.session_state["meals"][m]
+    # Apagar refeições marcadas
+    if meals_to_delete:
+        for m in meals_to_delete:
+            del st.session_state["meals"][m]
+        save_plan(st.session_state["meals"])
+        st.experimental_rerun()
 
-    # =========================
     # Totais do dia
-    # =========================
     st.markdown("---")
     st.subheader("📊 Total diário")
-
     if total_kcal_day == 0 and total_prot_day == 0 and total_carb_day == 0 and total_fat_day == 0:
         st.caption("Adicione alimentos às refeições para ver o total diário.")
     else:
@@ -157,7 +154,7 @@ else:
             f"- **Gorduras totais:** {total_fat_day:.1f} g"
         )
 
-    # Botão para limpar tudo
     if st.button("🗑️ Limpar todas as refeições"):
         st.session_state["meals"] = {}
+        save_plan(st.session_state["meals"])
         st.success("Todas as refeições foram limpas. Comece novamente.")
